@@ -4,16 +4,39 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import ProjectsActions from '../../store/ducks/projects';
+import MembersActions from '../../store/ducks/members';
 
+import Modal from '../Modal';
 import Button from '../../styles/components/Button';
 import { Container, Project } from './styles';
+import Members from '../Members';
 
 class Projects extends Component {
   static propTypes = {
     getProjectsRequest: PropTypes.func.isRequired,
+    createProjectRequest: PropTypes.func.isRequired,
+    closeProjectModal: PropTypes.func.isRequired,
+    openProjectModal: PropTypes.func.isRequired,
+    openMembersModal: PropTypes.func.isRequired,
+    members: PropTypes.shape({
+      membersModalOpen: PropTypes.bool,
+    }).isRequired,
     activeTeam: PropTypes.shape({
       name: PropTypes.string,
     }).isRequired,
+    projects: PropTypes.shape({
+      data: PropTypes.arrayOf(
+        PropTypes.shape({
+          id: PropTypes.number,
+          title: PropTypes.string,
+        }),
+      ),
+      projectModalOpen: PropTypes.bool,
+    }).isRequired,
+  };
+
+  state = {
+    newProject: '',
   };
 
   componentDidMount() {
@@ -24,8 +47,29 @@ class Projects extends Component {
     }
   }
 
+  handleInputChange = (e) => {
+    this.setState({ [e.target.name]: e.target.value });
+  };
+
+  handleCreateProject = (e) => {
+    e.preventDefault();
+
+    const { createProjectRequest } = this.props;
+    const { newProject } = this.state;
+
+    createProjectRequest(newProject);
+  };
+
   render() {
-    const { activeTeam, projects } = this.props;
+    const {
+      activeTeam,
+      projects,
+      closeProjectModal,
+      openProjectModal,
+      openMembersModal,
+      members,
+    } = this.props;
+    const { newProject } = this.state;
 
     if (!activeTeam) return null;
 
@@ -34,8 +78,8 @@ class Projects extends Component {
         <header>
           <h1>{activeTeam.name}</h1>
           <div>
-            <Button onClick={() => {}}>+ Novo</Button>
-            <Button onClick={() => {}}>Membros</Button>
+            <Button onClick={openProjectModal}>+ Novo</Button>
+            <Button onClick={openMembersModal}>Membros</Button>
           </div>
         </header>
 
@@ -44,6 +88,22 @@ class Projects extends Component {
             <p>{project.title}</p>
           </Project>
         ))}
+        {projects.projectModalOpen && (
+          <Modal>
+            <h1>Criar projeto</h1>
+            <form onSubmit={this.handleCreateProject}>
+              <span>NOME</span>
+              <input name="newProject" value={newProject} onChange={this.handleInputChange} />
+              <Button size="big" type="submit">
+                Salvar
+              </Button>
+              <Button onClick={closeProjectModal} size="small" color="gray">
+                Cancelar
+              </Button>
+            </form>
+          </Modal>
+        )}
+        {members.membersModalOpen && <Members />}
       </Container>
     );
   }
@@ -51,10 +111,11 @@ class Projects extends Component {
 
 const mapStateToProps = state => ({
   activeTeam: state.teams.active,
+  members: state.members,
   projects: state.projects,
 });
 
-const mapDispatchToProps = dispatch => bindActionCreators(ProjectsActions, dispatch);
+const mapDispatchToProps = dispatch => bindActionCreators({ ...ProjectsActions, ...MembersActions }, dispatch);
 
 export default connect(
   mapStateToProps,
