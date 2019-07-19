@@ -29,3 +29,22 @@ export function* signOut() {
 
   yield put(push('/signin'));
 }
+
+export function* signUp({ name, email, password }) {
+  try {
+    const response = yield call(api.post, 'users', { name, email, password });
+
+    localStorage.setItem('@saas:token', response.data.token);
+
+    yield put(AuthActions.signInSuccess(response.data.token));
+    yield put(push('/'));
+  } catch (err) {
+    yield put(
+      toastrActions.add({
+        type: 'error',
+        title: 'Falha no cadastro',
+        message: 'Você foi convidado para algum time?',
+      }),
+    );
+  }
+}
