@@ -1,7 +1,6 @@
 import { createReducer, createActions } from 'reduxsauce';
-import Imutable from 'seamless-immutable';
+import Immutable from 'seamless-immutable';
 
-// Actions
 const { Types, Creators } = createActions({
   getProjectsRequest: null,
   getProjectsSuccess: ['data'],
@@ -11,24 +10,22 @@ const { Types, Creators } = createActions({
   createProjectSuccess: ['project'],
 });
 
-export const ProjectsTypes = Types;
+export const ProjectTypes = Types;
 export default Creators;
 
-// Initial State
-export const INITIAL_STATE = Imutable({
+export const INITIAL_STATE = Immutable({
   data: [],
   projectModalOpen: false,
 });
 
-export const success = (state, { data }) => state.merge({ data });
+export const getSuccess = (state, { data }) => state.merge({ data });
 export const openModal = state => state.merge({ projectModalOpen: true });
 export const closeModal = state => state.merge({ projectModalOpen: false });
-export const createSuccess = (state, { project }) => state.merge({ data: [...state.data, project] });
+export const createProject = (state, { project }) => state.merge({ data: [...state.data, project] });
 
-// Reducers
 export const reducer = createReducer(INITIAL_STATE, {
-  [Types.GET_PROJECTS_SUCCESS]: success,
+  [Types.GET_PROJECTS_SUCCESS]: getSuccess,
   [Types.OPEN_PROJECT_MODAL]: openModal,
   [Types.CLOSE_PROJECT_MODAL]: closeModal,
-  [Types.CREATE_PROJECT_SUCCESS]: createSuccess,
+  [Types.CREATE_PROJECT_SUCCESS]: createProject,
 });

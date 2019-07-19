@@ -2,15 +2,16 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
+
 import TeamsActions from '../../store/ducks/teams';
 import AuthActions from '../../store/ducks/auth';
-
-import Button from '../../styles/components/Button';
-import Modal from '../Modal';
 
 import {
   Container, TeamList, Team, NewTeam, Logout,
 } from './styles';
+import Button from '../../styles/components/Button';
+
+import Modal from '../Modal';
 
 class TeamSwitcher extends Component {
   static propTypes = {
@@ -46,17 +47,16 @@ class TeamSwitcher extends Component {
     selectTeam(team);
   };
 
+  handleChangeInput = (e) => {
+    this.setState({ [e.target.name]: e.target.value });
+  };
+
   handleCreateTeam = (e) => {
     e.preventDefault();
-
     const { createTeamRequest } = this.props;
     const { newTeam } = this.state;
 
     createTeamRequest(newTeam);
-  };
-
-  handleInputChange = (e) => {
-    this.setState({ [e.target.name]: e.target.value });
   };
 
   render() {
@@ -81,23 +81,24 @@ class TeamSwitcher extends Component {
 
           {teams.teamModalOpen && (
             <Modal>
-              <h1>Criar time</h1>
+              <h1>Criar Time</h1>
+
               <form onSubmit={this.handleCreateTeam}>
                 <span>NOME</span>
-                <input name="newTeam" value={newTeam} onChange={this.handleInputChange} />
+                <input name="newTeam" value={newTeam} onChange={this.handleChangeInput} />
 
                 <Button size="big" type="submit">
                   Salvar
                 </Button>
-
-                <Button onClick={closeTeamModal} size="small" color="gray">
+                <Button size="small" color="gray" onClick={closeTeamModal}>
                   Cancelar
                 </Button>
               </form>
             </Modal>
           )}
         </TeamList>
-        <Logout onClick={signOut}>SAIR</Logout>
+
+        <Logout onClick={signOut}>Sair</Logout>
       </Container>
     );
   }

@@ -1,5 +1,6 @@
 import { call, put } from 'redux-saga/effects';
 import { actions as toastrActions } from 'react-redux-toastr';
+
 import api from '../../services/api';
 
 import MembersActions from '../ducks/members';
@@ -17,16 +18,24 @@ export function* updateMember({ id, roles }) {
     yield put(
       toastrActions.add({
         type: 'success',
-        title: 'Convite enviado',
-        message: 'Enviamos um convite ao usuário para participar do time',
+        title: 'Membro Atualizado',
+        message: 'O membro foi atualizado com sucesso',
+        options: {
+          timeOut: 3000,
+          progressBar: true,
+        },
       }),
     );
-  } catch (error) {
+  } catch (e) {
     yield put(
       toastrActions.add({
         type: 'error',
         title: 'Erro na operação',
         message: 'Houve um erro, tente novamente',
+        options: {
+          timeOut: 3000,
+          progressBar: true,
+        },
       }),
     );
   }
@@ -39,16 +48,24 @@ export function* inviteMember({ email }) {
     yield put(
       toastrActions.add({
         type: 'success',
-        title: 'Membro atualizado',
-        message: 'O membro foi atualizado com sucesso',
+        title: 'Email Enviado',
+        message: 'Email enviado com sucesso',
+        options: {
+          timeOut: 3000,
+          progressBar: true,
+        },
       }),
     );
-  } catch (error) {
+  } catch (e) {
     yield put(
       toastrActions.add({
         type: 'error',
         title: 'Erro na operação',
         message: 'Houve um erro, tente novamente',
+        options: {
+          timeOut: 3000,
+          progressBar: true,
+        },
       }),
     );
   }

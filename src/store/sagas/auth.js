@@ -1,50 +1,74 @@
-import { call, put } from 'redux-saga/effects';
+import { call, put, select } from 'redux-saga/effects';
 import { push } from 'connected-react-router';
 import { actions as toastrActions } from 'react-redux-toastr';
 import api from '../../services/api';
+
 import AuthActions from '../ducks/auth';
 
 export function* signIn({ email, password }) {
   try {
     const response = yield call(api.post, 'sessions', { email, password });
 
-    localStorage.setItem('@saas:token', response.data.token);
+    localStorage.setItem('@Omni:token', response.data.token);
 
     yield put(AuthActions.signInSuccess(response.data.token));
     yield put(push('/'));
-  } catch (err) {
+  } catch (e) {
     yield put(
       toastrActions.add({
         type: 'error',
         title: 'Falha no login',
         message: 'Verifique seu e-mail/senha!',
+        options: {
+          timeOut: 3000,
+          progressBar: true,
+        },
       }),
     );
   }
-}
-
-export function* signOut() {
-  localStorage.removeItem('@saas:token');
-  localStorage.removeItem('@saas:team');
-
-  yield put(push('/signin'));
 }
 
 export function* signUp({ name, email, password }) {
   try {
     const response = yield call(api.post, 'users', { name, email, password });
 
-    localStorage.setItem('@saas:token', response.data.token);
+    localStorage.setItem('@Omni:token', response.data.token);
 
     yield put(AuthActions.signInSuccess(response.data.token));
     yield put(push('/'));
-  } catch (err) {
+  } catch (e) {
     yield put(
       toastrActions.add({
         type: 'error',
         title: 'Falha no cadastro',
-        message: 'Você foi convidado para algum time?',
+        message: 'Voce foi convidado para algum time?',
+        options: {
+          timeOut: 3000,
+          progressBar: true,
+        },
       }),
     );
   }
+}
+
+export function* signOut() {
+  localStorage.removeItem('@Omni:token');
+  localStorage.removeItem('@Omni:team');
+
+  yield put(push('/signin'));
+}
+
+export function* getPermission() {
+  const team = yield select(state => state.teams.active);
+  const signedIn = yield select(state => state.auth.signedIn);
+
+  if (!signedIn || !team) {
+    return;
+  }
+
+  const response = yield call(api.get, 'permissions');
+
+  const { roles, permissions } = response.data;
+
+  yield put(AuthActions.getPermissionsSuccess(roles, permissions));
 }

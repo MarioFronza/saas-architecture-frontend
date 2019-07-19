@@ -1,26 +1,25 @@
 import React, { Component } from 'react';
-import PropTypes from 'prop-types';
-
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
+import PropTypes from 'prop-types';
+
 import ProjectsActions from '../../store/ducks/projects';
 import MembersActions from '../../store/ducks/members';
 
-import Modal from '../Modal';
 import Button from '../../styles/components/Button';
-import { Container, Project } from './styles';
+import Modal from '../Modal';
 import Members from '../Members';
+import Can from '../Can';
+
+import { Container, Project } from './styles';
 
 class Projects extends Component {
   static propTypes = {
     getProjectsRequest: PropTypes.func.isRequired,
-    createProjectRequest: PropTypes.func.isRequired,
-    closeProjectModal: PropTypes.func.isRequired,
     openProjectModal: PropTypes.func.isRequired,
+    closeProjectModal: PropTypes.func.isRequired,
+    createProjectRequest: PropTypes.func.isRequired,
     openMembersModal: PropTypes.func.isRequired,
-    members: PropTypes.shape({
-      membersModalOpen: PropTypes.bool,
-    }).isRequired,
     activeTeam: PropTypes.shape({
       name: PropTypes.string,
     }),
@@ -32,6 +31,9 @@ class Projects extends Component {
         }),
       ),
       projectModalOpen: PropTypes.bool,
+    }).isRequired,
+    members: PropTypes.shape({
+      membersOpenModal: PropTypes.bool,
     }).isRequired,
   };
 
@@ -57,9 +59,8 @@ class Projects extends Component {
 
   handleCreateProject = (e) => {
     e.preventDefault();
-
-    const { createProjectRequest } = this.props;
     const { newProject } = this.state;
+    const { createProjectRequest } = this.props;
 
     createProjectRequest(newProject);
   };
@@ -68,22 +69,24 @@ class Projects extends Component {
     const {
       activeTeam,
       projects,
-      closeProjectModal,
       openProjectModal,
+      closeProjectModal,
       openMembersModal,
       members,
     } = this.props;
     const { newProject } = this.state;
-
     if (!activeTeam) return null;
 
     return (
       <Container>
         <header>
           <h1>{activeTeam.name}</h1>
+
           <div>
-            <Button onClick={openProjectModal}>+ Novo</Button>
-            <Button onClick={openMembersModal}>Membros</Button>
+            <Can checkPermission="projects_create">
+              <Button onClick={openProjectModal}>+ Novo</Button>
+            </Can>
+            <Button onClick={openMembersModal}>Membro</Button>
           </div>
         </header>
 
@@ -92,22 +95,23 @@ class Projects extends Component {
             <p>{project.title}</p>
           </Project>
         ))}
+
         {projects.projectModalOpen && (
           <Modal>
-            <h1>Criar projeto</h1>
+            <h1>Criar Projeto</h1>
             <form onSubmit={this.handleCreateProject}>
               <span>NOME</span>
               <input name="newProject" value={newProject} onChange={this.handleInputChange} />
               <Button size="big" type="submit">
                 Salvar
               </Button>
-              <Button onClick={closeProjectModal} size="small" color="gray">
+              <Button size="small" color="gray" onClick={closeProjectModal}>
                 Cancelar
               </Button>
             </form>
           </Modal>
         )}
-        {members.membersModalOpen && <Members />}
+        {members.membersOpenModal && <Members />}
       </Container>
     );
   }
